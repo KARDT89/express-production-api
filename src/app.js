@@ -1,5 +1,12 @@
-import express from 'express'
+import cookieParser from 'cookie-parser';
+import express from 'express';
+import authRoute from './modules/auth/auth.route.js';
 
-const app = express()
+const app = express();
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
-export default app
+app.use('/api/auth', authRoute);
+
+export default app;
