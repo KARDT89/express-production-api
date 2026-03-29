@@ -1,4 +1,4 @@
-import { sendVerificationEmail } from '../../common/config/email.js';
+import { sendVerificationEmail, sendResetPasswordEmail } from '../../common/config/email.js';
 import ApiError from '../../common/utils/api-error.js';
 import {
   generateAccessToken,
@@ -6,9 +6,11 @@ import {
   verifyRefreshToken,
 } from '../../common/utils/jwt.utils.js';
 import User from './auth.model.js';
+import crypto from 'crypto';
 
 const hashToken = (token) =>
-  crypto.createHash('sha256').update(token).digest('hex');
+  crypto.createHash('sha256').update(String(token)).digest('hex');
+
 
 const register = async ({ name, email, password, role }) => {
   const existing = await User.findOne({ email });
@@ -57,6 +59,7 @@ const login = async ({ email, password }) => {
   const refreshToken = generateResetToken({ id: user._id });
 
   user.refreshToken = hashToken(refreshToken);
+  
   await user.save({ validateBeforeSave: false });
 
   const userObj = user.toObject();
@@ -95,12 +98,14 @@ const logout = async (userId) => {
 const forgotPassword = async (email) => {
   const user = await User.findOne({ email });
   if (!user) throw ApiError.notFound('User not found');
+  
   const { rawToken, hashedToken } = generateResetToken();
   user.resetPasswordToken = hashedToken;
   user.resetPasswordExpires = Date.now() + 15 * 60 * 1000; // 15min
 
   await user.save({ validateBeforeSave: false });
   //Todo mail bhejna nahi aata
+  await sendResetPasswordEmail(email, rawToken)
 };
 
 const getMe = async (userID) => {
@@ -121,4 +126,22 @@ const verifyEmail = async (token) => {
   return user;
 };
 
-export { register, login, refresh, logout, forgotPassword, getMe, verifyEmail };
+const resetPassword = async (token, newPassword) => {
+  const hashedToken = hashToken(token)
+
+  const user = await User.findOne({
+    resetPasswordToken: hashedToken,
+    resetPasswordExpires: { $gt: Date.now() }  // token not expired
+  })
+
+  if (!user) throw ApiError.badRequest('Invalid or expired token')
+
+  user.password = newPassword
+  user.resetPasswordToken = undefined
+  user.resetPasswordExpires = undefined
+
+  await user.save()  // this triggers your password hash pre-save hook
+}
+
+export { register, login, refresh, logout, forgotPassword, resetPassword, getMe, verifyEmail }
+

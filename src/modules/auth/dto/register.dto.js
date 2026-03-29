@@ -7,9 +7,13 @@ class RegisterDto extends BaseDto {
     email: Joi.string().email().lowercase().required(),
     password: Joi.string()
       .min(8)
+      .pattern(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/)
       .required()
-      .message('Password must contain ....')
-      .pattern(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/gm),
+      .messages({
+        "string.min": "Password must be at least 8 characters",
+        "string.pattern.base": "Password must contain uppercase, lowercase, and a number",
+        "any.required": "Password is required"
+      }),
     role: Joi.string().valid('customer', 'seller').default('customer'),
   });
 }
