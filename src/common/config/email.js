@@ -11,9 +11,9 @@ const transporter = nodemailer.createTransport({
 });
 
 transporter.verify((error, success) => {
-  if (error) console.error('SMTP connection failed:', error)
-  else console.log('SMTP server ready')
-})
+  if (error) console.error('SMTP connection failed:', error);
+  else console.log('SMTP server ready');
+});
 
 const sendMail = async ({ to, subject, html }) => {
   await transporter.sendMail({
@@ -25,32 +25,77 @@ const sendMail = async ({ to, subject, html }) => {
 };
 
 const sendVerificationEmail = async (email, token) => {
-  const url = `${process.env.CLIENT_URL}/api/auth/verify-email/${token}`
+  const url = `${process.env.CLIENT_URL}/api/auth/verify-email/${token}`;
   await transporter.sendMail({
     from: `${process.env.SMTP_FROM_EMAIL} <${process.env.SMTP_FROM_EMAIL}>`,
     to: email,
     subject: 'Verify your email',
     html: `
-      <h2>Welcome to DT89's WEBSITE</h2>
-      <p>Click the link below to verify your email. It expires in 24 hours.</p>
-      <a href="${url}">${url}</a>
+      <div style="font-family: Arial, sans-serif; background-color: #ffffff; color: #000000; padding: 20px; text-align: center;">
+  
+  <h2 style="font-size: 24px; font-weight: bold; margin-bottom: 16px;">
+    Welcome to DT89's Website
+  </h2>
+
+  <p style="font-size: 16px; color: #333333; margin-bottom: 24px;">
+    Click the link below to verify your email. It expires in 24 hours.
+  </p>
+
+  <a href="${url}" 
+     style="display: inline-block; padding: 12px 20px; font-size: 14px; color: #ffffff; background-color: #000000; text-decoration: none; border-radius: 4px;">
+    Verify Email
+  </a>
+
+  <p style="margin-top: 20px; font-size: 12px; color: #777777;">
+    Or copy and paste this link into your browser:
+  </p>
+
+  <p style="word-break: break-all; font-size: 12px; color: #555555;">
+    ${url}
+  </p>
+
+</div>
     `,
   });
 };
 
 const sendResetPasswordEmail = async (email, token) => {
-  const url = `${process.env.CLIENT_URL}/api/auth/reset-password/${token}`
+  const url = `${process.env.CLIENT_URL}/api/auth/reset-password/${token}`;
 
   await sendMail({
     to: email,
     subject: 'Reset your password',
     html: `
-      <h2>Password Reset</h2>
-      <p>Click the link below to reset your password. It expires in 15 minutes.</p>
-      <a href="${url}">${url}</a>
-      <p>If you didn't request this, ignore this email.</p>
+      <div style="font-family: Arial, sans-serif; background-color: #ffffff; color: #000000; padding: 20px; text-align: center;">
+
+  <h2 style="font-size: 22px; font-weight: bold; margin-bottom: 16px;">
+    Password Reset
+  </h2>
+
+  <p style="font-size: 15px; color: #333333; margin-bottom: 24px;">
+    Click the button below to reset your password. This link expires in 15 minutes.
+  </p>
+
+  <a href="${url}" 
+     style="display: inline-block; padding: 12px 20px; font-size: 14px; color: #ffffff; background-color: #000000; text-decoration: none; border-radius: 4px;">
+    Reset Password
+  </a>
+
+  <p style="margin-top: 20px; font-size: 12px; color: #777777;">
+    Or copy and paste this link into your browser:
+  </p>
+
+  <p style="word-break: break-all; font-size: 12px; color: #555555;">
+    ${url}
+  </p>
+
+  <p style="margin-top: 24px; font-size: 12px; color: #999999;">
+    If you didn’t request this, you can safely ignore this email.
+  </p>
+
+</div>
     `,
-  })
-}
+  });
+};
 
 export { sendMail, sendVerificationEmail, sendResetPasswordEmail };

@@ -14,14 +14,37 @@ router.post('/register', validate(RegisterDto), controller.register);
 router.post('/login', validate(LoginDto), controller.login);
 router.post('/logout', authenticate, controller.logout);
 router.get('/me', authenticate, controller.getMe);
-router.get('/verify-email/:token', validate(verifyEmailDto), controller.verifyEmail);
+router.get(
+  '/verify-email/:token',
+  validate(verifyEmailDto),
+  controller.verifyEmail
+);
 router.post('/forgot-password', controller.forgotPassword);
-router.post('/reset-password/:token', validate(ResetPasswordDto), controller.resetPassword);
+router.post(
+  '/reset-password/:token',
+  validate(ResetPasswordDto),
+  controller.resetPassword
+);
 
 // View routes — serve EJS pages
-router.get('/login', (req, res) => res.render('auth/login', { error: null, success: null }))
-router.get('/register', (req, res) => res.render('auth/register', { error: null, success: null }))
-router.get('/forgot-password', (req, res) => res.render('auth/forgot-password', { error: null, success: null }))
-router.get('/reset-password/:token', (req, res) => res.render('auth/reset-password', { token: req.params.token, error: null, success: null }))
+router.get('/login', (req, res) =>
+  res.render('auth/login', { error: null, success: null })
+);
+router.get('/register', (req, res) =>
+  res.render('auth/register', { error: null, success: null })
+);
+router.get('/forgot-password', (req, res) =>
+  res.render('auth/forgot-password', { error: null, success: null })
+);
+router.get('/reset-password/:token', (req, res) =>
+  res.render('auth/reset-password', {
+    token: req.params.token,
+    error: null,
+    success: null,
+  })
+);
+router.get('/check-email', (req, res) =>
+  res.render('auth/check-email', { email: req.query.email })
+);
 
 export default router;

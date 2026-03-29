@@ -6,6 +6,8 @@ const register = async (req, res) => {
   //something
   const user = await authService.register(req.body);
   ApiResponse.created(res, 'Registration success', user);
+  // After successful registration, redirect to a page that instructs the user to check their email for verification
+  //  res.redirect(`/api/auth/check-email?email=${user.email}`)
 };
 
 const login = async (req, res) => {
@@ -39,18 +41,29 @@ const getMe = async (req, res) => {
 };
 
 const verifyEmail = async (req, res) => {
-  const user = await authService.verifyEmail(req.params.token)
-  ApiResponse.ok(res, "Email verified successfully", user)
+  const user = await authService.verifyEmail(req.params.token);
+  ApiResponse.ok(res, 'Email verified successfully', user);
 };
 
 const forgotPassword = async (req, res) => {
-  const user = await authService.forgotPassword(req.body.email)
-  ApiResponse.ok(res, "Reset email sent", user)
+  const user = await authService.forgotPassword(req.body.email);
+  ApiResponse.ok(res, 'Reset email sent', user);
 };
 
 const resetPassword = async (req, res) => {
-  const user = await authService.resetPassword(req.params.token, req.body.password)
-  ApiResponse.ok(res, 'Password reset successful', user)
-}
+  const user = await authService.resetPassword(
+    req.params.token,
+    req.body.password
+  );
+  ApiResponse.ok(res, 'Password reset successful', user);
+};
 
-export { register, login, logout, getMe, verifyEmail, forgotPassword, resetPassword };
+export {
+  register,
+  login,
+  logout,
+  getMe,
+  verifyEmail,
+  forgotPassword,
+  resetPassword,
+};
